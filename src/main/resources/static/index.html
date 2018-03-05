@@ -1,0 +1,65 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	</head>
+	<body style="margin-top:130px; margin-right:200px; margin-left:200px;">
+		<div style="float:left;">
+			<span style="display:block; margin-bottom:10px;">Joueur 1<input type="checkbox" onclick="checkReady();" checked/></span>
+			<span style="display:block; margin-bottom:10px;">Joueur 2<input type="checkbox" onclick="checkReady();" checked/></span>
+			<span style="display:block; margin-bottom:10px;">Joueur 3<input type="checkbox" onclick="checkReady();" checked/></span>
+			<span style="display:block; margin-bottom:10px;">Joueur 4<input type="checkbox" onclick="checkReady();" checked/></span>
+			<span style="display:block; margin-bottom:10px;">Joueur 5<input type="checkbox" onclick="checkReady();" checked/></span>
+		</div>
+		<div style="text-align:center;">
+			<span id="countdown">Awaiting <span id="readyCount" style="font-weight:bold;">10</span> players...</span>
+		</div>
+		<div style="float:right;">
+			<span style="display:block; margin-bottom:10px;"><input type="checkbox" onclick="checkReady();" checked/>Joueur 6</span>
+			<span style="display:block; margin-bottom:10px;"><input type="checkbox" onclick="checkReady();" checked/>Joueur 7</span>
+			<span style="display:block; margin-bottom:10px;"><input type="checkbox" onclick="checkReady();" checked/>Joueur 8</span>
+			<span style="display:block; margin-bottom:10px;"><input type="checkbox" onclick="checkReady();" checked/>Joueur 9</span>
+			<span style="display:block; margin-bottom:10px;"><input type="checkbox" onclick="checkReady();"/>Joueur 10</span>
+		</div>
+	</body>
+	<script>
+		var readies;
+		var joinUrl;
+		function startTimer(duration) {
+			var timer = duration, minutes, seconds;
+			setInterval(function () {
+				seconds = parseInt(timer % 60, 10);
+
+				seconds = seconds < 10 ? "0" + seconds : seconds;
+
+				$('#countdown').text(seconds);
+
+				if (--timer < 0) {
+					$('#countdown').html("<a href='" + joinUrl + "'>PLAY!</a>"); //href to the server (like steam://connect/IP:27015/yourpassword)
+					return;
+				}
+			}, 1000);
+		}
+		
+		function checkReady() {
+			readies = $('input:checked');
+			$('#readyCount').text(10 - readies.length);
+			if($(readies).length == 10) {
+				$(readies).each(function(i, ready) {
+					$(ready).attr('disabled','disabled');
+				});
+			//ajax call to the service that will insert an entry in the matchs (& maps) table.
+			
+				$.ajax({
+					url: window.location + "/api/create"
+					}).then(function(data) {
+						console.log(data);
+					   joinUrl = data.url;
+					});
+			
+				$('#countdown').text("All players are ready !");
+				$('#countdown').attr('style','display:block');
+				startTimer(5);
+			}
+		}
+	</script>
+</html>
